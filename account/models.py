@@ -79,15 +79,17 @@ class User(AbstractBaseUser):
 
 
 # Create your models here.
-Bloodgroup =[
-    ("A+","A+"), ("A-","A-"),  ("B+","B+"),("B-","B-"),  ("O+","O+"),('O-','O-'), ('AB+','AB+'),('AB-','AB-')
-]
+
 
 Gender = [
     ('M','M'),
     ('F','F')
 ]
-
+Bloodgroup =[
+    ("A+","A+"), ("A-","A-"),
+    ("B+","B+"),("B-","B-"), 
+    ("O+","O+"),('O-','O-'), ('AB+','AB+'),('AB-','AB-')
+]
 
 # all the details that are required to get blood 
 class Reciver(models.Model):
@@ -96,6 +98,7 @@ class Reciver(models.Model):
     lastname            =models.CharField(max_length=100)
     age                 =models.IntegerField()
     contactnumber       =models.IntegerField()
+    email               =models.EmailField(max_length=20)
     incident            =models.CharField(max_length=100)
     bloodgroup          =models.CharField(max_length=10,choices=Bloodgroup)
     Gender              =models.CharField(max_length=1,choices=Gender)
@@ -115,6 +118,7 @@ class Donor(models.Model):
     Gender                  =models.CharField(max_length=1,choices=Gender)
     age                     =models.IntegerField()
     contactnumber           =models.IntegerField()
+    email                   =models.EmailField(max_length=20)
     # dateofbirth             =models.DateField(blank=True)
     image                   =models.FileField(max_length=100,upload_to='images/')
     bloodgroup              =models.CharField(max_length=10,choices=Bloodgroup)
@@ -122,6 +126,13 @@ class Donor(models.Model):
     diseases                =models.CharField(max_length=100)
     donatedate              =models.DateTimeField()
     location                =models.CharField(max_length=100)
+
+
+class Post(models.Model):
+    topic = models.CharField(max_length=50)
+    image  =models.FileField(max_length=100,upload_to='event/')
+    describe = models.TextField()
+    date = models.DateField(auto_now_add=True)
 
 
 

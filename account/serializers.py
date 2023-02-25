@@ -24,6 +24,7 @@ class UserRegistrationSerializers(serializers.ModelSerializer):
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
 
+
 class UserloginSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length = 100)
     class Meta:
@@ -37,6 +38,7 @@ class UserProfileViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = "__all__"
+
 
 class ChangepasswordSerializer(serializers.Serializer):
     password  = serializers.CharField(max_length = 100,style={'input_type':'password'},write_only=True)
@@ -120,7 +122,7 @@ class ReciverSerializer(serializers.ModelSerializer):
         return value
 
 
-
+'''this serializer is for reciver '''
 class DonorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Donor
@@ -135,3 +137,30 @@ class DonorSerializer(serializers.ModelSerializer):
         if value>9999999999 or value<9100000000:
             raise serializers.ValidationError('please put correct contact number ')
         return value
+
+
+'''this is the post data for admin and see for normal usre'''
+from .models import Post
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = '__all__'
+
+
+'''blood group serializer '''
+# (A+, A-, B+, B-, O+, O-, AB+, AB-)
+class ListSerializer(serializers.Serializer):
+    total =  serializers.IntegerField()
+    Aplus = serializers.IntegerField()
+    Aminus =serializers.IntegerField()
+    Bplus =serializers.IntegerField()
+    Bminus =serializers.IntegerField()
+    Oplus = serializers.IntegerField()
+    Ominus =serializers.IntegerField()
+    ABplus =  serializers.IntegerField()
+    ABminus =serializers.IntegerField()
+
+
+
+
+    

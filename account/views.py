@@ -49,7 +49,6 @@ class LoginView(APIView):
         return Response({'errors':{'non_field_error':['email or password didnot match ']}},status=status.HTTP_404_NOT_FOUND)
     
 
-
 '''how to see the user profile '''
 from .serializers import UserProfileViewSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -99,7 +98,7 @@ class ResetView(APIView):
 
 '''this is to logout the user '''
 from rest_framework_simplejwt.tokens import RefreshToken,TokenError
-class LogoutView(APIView):
+class LogoutView(APIView): 
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
@@ -185,20 +184,19 @@ class RequestorFormView(APIView):
         return Response(msg,status = status.HTTP_201_CREATED)
 
 
-'''this view is for all the requestor who request for items''' 
-class RequestorView(APIView):
+'''this view is for all the requestor who request for items all list''' 
+from rest_framework.generics import ListAPIView
+class RequestorView(ListAPIView):
     # renderer_classes = [UserRenderer]
     # permission_classes=[IsAuthenticated]
-    def get(self,request,format=None):
-        data = Reciver.objects.all()
-        serializer = ReciverSerializer(data,many=True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+    queryset = Reciver.objects.all()
+    serializer_class = ReciverSerializer
 
 
-'''this view is for those who need items in emergency with search '''
+'''this view is for those who need items in emergency with search and pagination '''
+'''pagination inherited from pagination.py'''
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import ListAPIView
-from rest_framework.filters import OrderingFilter
+from .pagination import MyPagination
 class VerifyReciverEmergencyView(ListAPIView):
     # renderer_classes = [UserRenderer]
     queryset = Reciver.objects.filter(emergency=True)
@@ -206,10 +204,10 @@ class VerifyReciverEmergencyView(ListAPIView):
     # permission_classes = [IsAdminUser]
     filter_backends = [SearchFilter]
     search_fields = ['=contactnumber']
+    pagination_class = MyPagination
 
 
-
-'''this view is for those who doesnot need items in emergency  with search'''
+'''this view is for those who doesnot need items in emergency  with search and pagination'''
 class VerifyReciverView(ListAPIView):
     # renderer_classes = [UserRenderer]
     queryset = Reciver.objects.filter(emergency=False)
@@ -217,6 +215,84 @@ class VerifyReciverView(ListAPIView):
     # permission_classes = [IsAdminUser]
     filter_backends = [SearchFilter]
     search_fields = ['=contactnumber']
+    pagination_class = MyPagination
+
+'''this view for the post that all the admin does to show in home page '''
+from .serializers import PostSerializer
+from .models import Post
+from rest_framework.viewsets import ModelViewSet
+class PostAdminView(ModelViewSet):
+    # renderer_classes = [UserRenderer]
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    # permission_classes = [IsAdminUser]
+    
+
+'''this view is for user to see the Post done by user '''
+class UserSeeView(APIView):
+    # renderer_classes = [UserRenderer]
+    # permission_classes = [IsAuthenticated]
+    def get(self,request,pk=None,format=None):
+        id=pk
+        if id:
+            result = Post.objects.get(id=id)
+            serializer = PostSerializer(result)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        result = Post.objects.all()
+        serializer = PostSerializer(result,many=True)
+        form = {
+            'result':serializer.data,}
+        return Response(form,status=status.HTTP_200_OK)
+
+
+
+'''this view is to show all the list of item that are present in database '''
+from .serializers import ListSerializer
+class Listdata(APIView):
+    # renderer_classes = [UserRenderer]
+    # permission_classes = [IsAuthenticated]
+    def get(self,request,fromat = None):   
+        total = Donor.objects.all().count()
+        Aplus= Donor.objects.filter(bloodgroup='A+').count() 
+        Aminus= Donor.objects.filter(bloodgroup='A-').count()           
+        Bplus = Donor.objects.filter(bloodgroup='B+').count()
+        Bminus = Donor.objects.filter(bloodgroup='B-').count()
+        Oplus = Donor.objects.filter(bloodgroup='O+').count()
+        Ominus = Donor.objects.filter(bloodgroup='O-').count()
+        ABplus = Donor.objects.filter(bloodgroup='AB+').count()
+        ABminus = Donor.objects.filter(bloodgroup='AB-').count()
+        data = {'total':total,'Aplus':Aplus,"Aminus":Aminus,'Bplus':Bplus,'Bminus':Bminus,'Oplus':Oplus,"Ominus":Ominus,"ABplus":ABplus,"ABminus":ABminus}
+        serializer = ListSerializer(data)
+        return Response(serializer.data)
+
+
+'''this view is for approve and disapprove request done which are done by normal user '''
+from .utils import approved,decline
+class Aprove(APIView):
+    # renderer_classes = [UserRenderer]
+    # permission_classes = [IsAuthenticated]    
+    def get(self,request,pk,format=None):
+        id = pk
+        data = Reciver.objects.get(pk=id)
+        contactnumber = data.contactnumber
+        email=data.email
+        approved(email)
+        data.delete()
+        msg = {
+            'msg':'email send sucessfull and contact him for detail',
+            "contact number":contactnumber
+        }
+        return Response(msg,status=status.HTTP_200_OK)
+
+    def delete(self,request,pk,format=None):
+        id=pk
+        data = Reciver.objects.get(pk=id)
+        email = data.email
+        decline(email)
+        data.delete()
+        msg = {
+            'msg':'message delete sucessfully'}
+        return Response(msg,status=status.HTTP_200_OK)
 
 
 
@@ -227,4 +303,25 @@ class VerifyReciverView(ListAPIView):
 
 
 
+
+'''this view is for pagination and inherited form pagination.py. data in 1 page =5'''
+
+'''pagination for emergency '''
+class PaginationEmergencyView(ListAPIView):
+    # renderer_classes = [UserRenderer]
+    # permission_classes = [IsAuthenticated]
+    queryset = Reciver.objects.filter(emergency=True)
+    serializer_class = ReciverSerializer
+    pagination_class = MyPagination 
+
+
+
+'''this view is for pagination and inherited form pagination.py. data in 1 page =5'''
+'''pagination for nonemergency '''
+class PaginationNonEmergencyView(ListAPIView):
+    # renderer_classes = [UserRenderer]
+    # permission_classes = [IsAuthenticated]
+    queryset = Reciver.objects.filter(emergency=False)
+    serializer_class = ReciverSerializer
+    pagination_class = MyPagination
 
