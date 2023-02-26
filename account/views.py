@@ -298,12 +298,6 @@ class Aprove(APIView):
 
 
 
-
-
-
-
-
-
 '''this view is for pagination and inherited form pagination.py. data in 1 page =5'''
 
 '''pagination for emergency '''
