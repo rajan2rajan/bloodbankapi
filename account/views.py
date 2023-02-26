@@ -115,8 +115,8 @@ class LogoutView(APIView):
 ''' admin can only post,get,put,patch and delete '''
 from datetime import datetime,timedelta
 class EditDonerView(APIView):
-    # renderer_classes = [UserRenderer]
-    # permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
     def get(self,request,pk=None,format=None):
         id=pk
         if id:
@@ -172,8 +172,8 @@ class EditDonerView(APIView):
 
 '''this is page where normal user submit required blood page '''
 class RequestorFormView(APIView):
-    # renderer_classes = [UserRenderer]
-    # permission_classes=[IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    permission_classes=[IsAuthenticated]
 
     def post(self,request,format=None):
         data = request.data 
@@ -187,8 +187,8 @@ class RequestorFormView(APIView):
 '''this view is for all the requestor who request for items all list''' 
 from rest_framework.generics import ListAPIView
 class RequestorView(ListAPIView):
-    # renderer_classes = [UserRenderer]
-    # permission_classes=[IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    permission_classes=[IsAuthenticated]
     queryset = Reciver.objects.all()
     serializer_class = ReciverSerializer
 
@@ -198,10 +198,10 @@ class RequestorView(ListAPIView):
 from rest_framework.filters import SearchFilter
 from .pagination import MyPagination
 class VerifyReciverEmergencyView(ListAPIView):
-    # renderer_classes = [UserRenderer]
+    renderer_classes = [UserRenderer]
     queryset = Reciver.objects.filter(emergency=True)
     serializer_class = ReciverSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
     filter_backends = [SearchFilter]
     search_fields = ['=contactnumber']
     pagination_class = MyPagination
@@ -209,10 +209,10 @@ class VerifyReciverEmergencyView(ListAPIView):
 
 '''this view is for those who doesnot need items in emergency  with search and pagination'''
 class VerifyReciverView(ListAPIView):
-    # renderer_classes = [UserRenderer]
+    renderer_classes = [UserRenderer]
     queryset = Reciver.objects.filter(emergency=False)
     serializer_class = ReciverSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
     filter_backends = [SearchFilter]
     search_fields = ['=contactnumber']
     pagination_class = MyPagination
@@ -222,16 +222,16 @@ from .serializers import PostSerializer
 from .models import Post
 from rest_framework.viewsets import ModelViewSet
 class PostAdminView(ModelViewSet):
-    # renderer_classes = [UserRenderer]
+    renderer_classes = [UserRenderer]
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
     
 
 '''this view is for user to see the Post done by user '''
 class UserSeeView(APIView):
-    # renderer_classes = [UserRenderer]
-    # permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
     def get(self,request,pk=None,format=None):
         id=pk
         if id:
@@ -249,8 +249,8 @@ class UserSeeView(APIView):
 '''this view is to show all the list of item that are present in database '''
 from .serializers import ListSerializer
 class Listdata(APIView):
-    # renderer_classes = [UserRenderer]
-    # permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
     def get(self,request,fromat = None):   
         total = Donor.objects.all().count()
         Aplus= Donor.objects.filter(bloodgroup='A+').count() 
@@ -269,8 +269,8 @@ class Listdata(APIView):
 '''this view is for approve and disapprove request done which are done by normal user '''
 from .utils import approved,decline
 class Aprove(APIView):
-    # renderer_classes = [UserRenderer]
-    # permission_classes = [IsAuthenticated]    
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAdminUser]    
     def get(self,request,pk,format=None):
         id = pk
         data = Reciver.objects.get(pk=id)
@@ -302,8 +302,8 @@ class Aprove(APIView):
 
 '''pagination for emergency '''
 class PaginationEmergencyView(ListAPIView):
-    # renderer_classes = [UserRenderer]
-    # permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
     queryset = Reciver.objects.filter(emergency=True)
     serializer_class = ReciverSerializer
     pagination_class = MyPagination 
@@ -313,8 +313,8 @@ class PaginationEmergencyView(ListAPIView):
 '''this view is for pagination and inherited form pagination.py. data in 1 page =5'''
 '''pagination for nonemergency '''
 class PaginationNonEmergencyView(ListAPIView):
-    # renderer_classes = [UserRenderer]
-    # permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
     queryset = Reciver.objects.filter(emergency=False)
     serializer_class = ReciverSerializer
     pagination_class = MyPagination
